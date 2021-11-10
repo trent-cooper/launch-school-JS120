@@ -11,12 +11,15 @@
 // Scissors beat paper
 // Paper beats rock
 // If the players select the same move, it's a tie
+// If a player wins, they're score increases by 1
+// If a player scores 5, they win the game
 
 // Nouns: Player, Moves (rock/paper/scissor), Rules
 // Verbs: Chooses/Selects, Compares
 
 // Player
 //    - Chooses
+// Score
 // Moves
 // Rules
 // - Compare
@@ -29,13 +32,19 @@ const RPSGame = {
 
   displayWelcomeMessage() {
     console.log('Welcome to Rock, Paper, Scissors!');
+    console.log('First Player to 5 rounds won is the winner!')
   },
 
   displayGoodbyeMessage() {
     console.log('Thanks for playing!');
   },
 
-  displayWinner() {
+  displayScore() {
+    console.log(`The Current Score Is:`);
+    console.log(`Human: ${this.human.score} | Computer: ${this.computer.score}`);
+  },
+
+  displayRoundWinner() {
     let humanMove = this.human.move;
     let compMove = this.computer.move;
 
@@ -46,20 +55,37 @@ const RPSGame = {
         (humanMove === 'paper' && compMove === 'rock') ||
         (humanMove === 'scissors' && compMove === 'paper')) {
       console.log('You win!');
+      this.human.score += 1;
+      this.displayScore();
     } else if ((humanMove === 'rock' && compMove === 'paper') ||
                (humanMove === 'paper' && compMove === 'scissors') ||
                (humanMove === 'scissors' && compMove === 'rock')) {
       console.log('Computer wins!');
+      this.computer.score += 1;
+      this.displayScore();
     } else {
       console.log(`It's a tie!`);
+      this.displayScore();
     }
+  },
+
+  displayGameWinner() {
+    if (this.human.score === 5) {
+      console.log('You win the game!');
+    } else if (this.computer.score === 5) {
+      console.log('The computer wins this time, better luck next time!');
+    }
+  },
+
+  checkGameWinner() {
+    return (this.human.score === 5 || this.computer.score === 5);
   },
 
   playAgain() {
     let answer;
 
     while (true) {
-      answer = readline.question('Would you like to play again? (Y/N): ').toUpperCase();
+      answer = readline.question('Would you like to keep going? (Y/N): ').toUpperCase();
       if (['Y', 'N'].includes(answer)) break;
       console.log("That's not a valid response, please try again.");
     }
@@ -71,11 +97,19 @@ const RPSGame = {
     this.displayWelcomeMessage();
 
     while (true) {
-      this.human.choose();
-      this.computer.choose();
-      this.displayWinner();
+      while (true) {
+        console.clear();
+        this.human.choose();
+        this.computer.choose();
+        this.displayRoundWinner();
+        if (this.checkGameWinner()) break;
+        if (!this.playAgain()) break;
+      }
+
+      console.clear();
+      this.displayGameWinner();
       if (!this.playAgain()) break;
-    }
+   }
 
     this.displayGoodbyeMessage();
   },
@@ -84,6 +118,7 @@ const RPSGame = {
 function createPlayer() {
   return {
     move: null,
+    score: 0,
   };
 }
 
