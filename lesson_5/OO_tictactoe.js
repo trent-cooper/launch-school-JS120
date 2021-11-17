@@ -151,8 +151,20 @@ class TTTGame {
 
   play() {
     this.displayWelcomeMessage();
-    this.board.display();
 
+    while (true) {
+      this.playRound();
+      if (!this.playAgain()) break;
+      console.clear();
+      console.log('Here we go again..');
+    }
+
+    this.displayGoodbyeMessage();
+  }
+
+  playRound() {
+    this.resetGame();
+    this.board.display();
     while (true) {
       this.humanMoves();
       if (this.gameOver()) break;
@@ -165,7 +177,6 @@ class TTTGame {
 
     this.board.displayWithClear();
     this.displayResults();
-    this.displayGoodbyeMessage();
   }
 
   displayWelcomeMessage() {
@@ -187,6 +198,35 @@ class TTTGame {
     }
   }
 
+  playAgain() {
+    let choice;
+
+    while (true) {
+      choice = readline.question('Would you like to play again? (Y/N): ');
+      if (['y', 'n'].includes(choice.toLowerCase())) break;
+      console.log('This is not a valid response.');
+      console.log('');
+    }
+
+    return choice.toLowerCase() === 'y';
+  }
+
+  resetGame() {
+    this.board = new Board();
+  }
+
+  joinOr(choices, delim = ', ', conj = 'or') {
+    let length = choices.length;
+
+    if (length === 1) {
+      return choices;
+    }
+
+    return choices.slice(0, length - 1).join(delim) +
+           ' ' + conj + ' ' +
+           choices[length - 1];
+  }
+
   humanMoves() {
     let choice;
 
@@ -200,18 +240,6 @@ class TTTGame {
     }
 
     this.board.markSquareAt(choice, this.human.getMarker());
-  }
-
-  joinOr(choices, delim = ', ', conj = 'or') {
-    let length = choices.length;
-
-    if (length === 1) {
-      return choices;
-    }
-
-    return choices.slice(0, length - 1).join(delim) +
-           ' ' + conj + ' ' +
-           choices[length - 1];
   }
 
   computerMoves() {
