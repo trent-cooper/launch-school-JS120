@@ -243,14 +243,38 @@ class TTTGame {
   }
 
   computerMoves() {
-    let validChoices = this.board.unusedSquares();
-    let choice;
+    let choice = this.checkDefense();
 
-    do {
-      choice = Math.floor((Math.random() * 9) + 1).toString();
-    } while (!validChoices.includes(choice));
+    if (!choice) {
+      let validChoices = this.board.unusedSquares();
+
+      do {
+        choice = Math.floor((Math.random() * 9) + 1).toString();
+      } while (!validChoices.includes(choice));
+    }
 
     this.board.markSquareAt(choice, this.computer.getMarker());
+  }
+
+  checkDefense() {
+    let key;
+    TTTGame.POSSIBLE_WINNING_ROWS.forEach(row => {
+      if (this.checkSquareRisk(row)) {
+        key = this.checkSquareRisk(row);
+      }
+    });
+    if (key) return key;
+
+    return null;
+  }
+
+  checkSquareRisk(row) {
+    if (this.board.countMarkersFor(this.human, row) === 2) {
+      let filterRow = row.filter(key => this.board.squares[key].isUnused());
+      if (filterRow.length === 1) return filterRow[0];
+    }
+
+    return null;
   }
 
   gameOver() {
