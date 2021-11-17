@@ -192,7 +192,7 @@ class TTTGame {
 
     while (true) {
       let validChoices = this.board.unusedSquares();
-      choice = readline.question(`Choose a Square: (${validChoices.join(', ')}): `);
+      choice = readline.question(`Choose a Square: (${this.joinOr(validChoices)}): `);
       if (validChoices.includes(choice)) break;
 
       console.log("Sorry, that's not a valid choice.");
@@ -200,6 +200,18 @@ class TTTGame {
     }
 
     this.board.markSquareAt(choice, this.human.getMarker());
+  }
+
+  joinOr(choices, delim = ', ', conj = 'or') {
+    let length = choices.length;
+
+    if (length === 1) {
+      return choices;
+    }
+
+    return choices.slice(0, length - 1).join(delim) +
+           ' ' + conj + ' ' +
+           choices[length - 1];
   }
 
   computerMoves() {
