@@ -243,24 +243,43 @@ class TTTGame {
   }
 
   computerMoves() {
-    let choice = this.checkDefense();
+    let choice = this.checkBoardMoves(this.computer);
 
     if (!choice) {
-      let validChoices = this.board.unusedSquares();
+      choice = this.checkBoardMoves(this.human);
+    }
 
-      do {
-        choice = Math.floor((Math.random() * 9) + 1).toString();
-      } while (!validChoices.includes(choice));
+    if (!choice) {
+      choice = this.pickCenter();
+    }
+
+    if (!choice) {
+      choice = this.pickRandom();
     }
 
     this.board.markSquareAt(choice, this.computer.getMarker());
   }
 
-  checkDefense() {
+  pickCenter() {
+    return this.board.squares[5].isUnused() ? '5' : null;
+  }
+
+  pickRandom() {
+    let validChoices = this.board.unusedSquares();
+    let choice;
+
+    do {
+      choice = Math.floor((Math.random() * 9) + 1).toString();
+    } while (!validChoices.includes(choice));
+
+    return choice;
+  }
+
+  checkBoardMoves(player) {
     let key;
     TTTGame.POSSIBLE_WINNING_ROWS.forEach(row => {
-      if (this.checkSquareRisk(row)) {
-        key = this.checkSquareRisk(row);
+      if (this.checkSquareRisk(row, player)) {
+        key = this.checkSquareRisk(row, player);
       }
     });
     if (key) return key;
@@ -268,8 +287,8 @@ class TTTGame {
     return null;
   }
 
-  checkSquareRisk(row) {
-    if (this.board.countMarkersFor(this.human, row) === 2) {
+  checkSquareRisk(row, player) {
+    if (this.board.countMarkersFor(player, row) === 2) {
       let filterRow = row.filter(key => this.board.squares[key].isUnused());
       if (filterRow.length === 1) return filterRow[0];
     }
