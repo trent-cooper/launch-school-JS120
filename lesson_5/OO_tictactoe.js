@@ -145,6 +145,7 @@ class TTTGame {
     this.board = new Board();
     this.human = new Human();
     this.computer = new Computer();
+    this.round = 0;
   }
 
   static POSSIBLE_WINNING_ROWS = [
@@ -162,7 +163,28 @@ class TTTGame {
 
   play() {
     this.displayWelcomeMessage();
+    this.playMatch();
+    this.displayGoodbyeMessage();
+  }
 
+  // play() {
+  //   this.displayWelcomeMessage();
+
+  //   while (true) {
+  //     this.playRound();
+  //     if (this.gameOver()) {
+  //       this.displayGameResults();
+  //       break;
+  //     }
+  //     if (!this.playAgain()) break;
+  //     console.clear();
+  //     console.log('Here we go again.. First player to 3 wins!');
+  //   }
+
+  //   this.displayGoodbyeMessage();
+  // }
+
+  playMatch() {
     while (true) {
       this.playRound();
       if (this.gameOver()) {
@@ -173,20 +195,28 @@ class TTTGame {
       console.clear();
       console.log('Here we go again.. First player to 3 wins!');
     }
-
-    this.displayGoodbyeMessage();
   }
 
   playRound() {
     this.resetGame();
     this.board.display();
     while (true) {
-      this.humanMoves();
-      if (this.roundOver()) break;
+      if (this.turnCheck() === 'human') {
+        this.humanMoves();
+        if (this.roundOver()) break;
+  
+        this.computerMoves();
+        if (this.roundOver()) break;
+          
+      } else if (this.turnCheck() === 'computer') {
+        this.computerMoves();
+        if (this.roundOver()) break;
+        this.board.displayWithClear(this.human.score, this.computer.score);
 
-      this.computerMoves();
-      if (this.roundOver()) break;
-
+        this.humanMoves();
+        if (this.roundOver()) break;        
+      }
+    
       this.board.displayWithClear(this.human.score, this.computer.score);
     }
 
@@ -253,6 +283,7 @@ class TTTGame {
 
   resetGame() {
     this.board = new Board();
+    this.incrementRound();
   }
 
   joinOr(choices, delim = ', ', conj = 'or') {
@@ -348,6 +379,22 @@ class TTTGame {
     return TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
       return this.board.countMarkersFor(player, row) === 3;
     });
+  }
+
+  turnCheck() {
+    if (this.getRound() % 2 !== 0) {
+      return 'human';
+    } else {
+      return 'computer';
+    }
+  }
+
+  incrementRound() {
+    this.round += 1;
+  }
+
+  getRound() {
+    return this.round;
   }
 }
 
